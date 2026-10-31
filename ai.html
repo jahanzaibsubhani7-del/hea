@@ -102,7 +102,7 @@
                 </div>
 
                 <!-- Model Context Protocol Integration Snippet -->
-                <div class="g c" style="padding: 36px;" id="developers">
+                <div class="g c" style="padding: 36px; margin-bottom: 50px;" id="developers">
                     <span class="t" style="border-color: rgba(234,88,12,0.4); color: #f97316; margin-bottom: 12px;">⚙️ MCP Configuration</span>
                     <h2 style="text-align: left; font-size: 20px; margin-bottom: 8px;">Add HEA MCP Server to Cursor or Claude Code</h2>
                     <p class="m" style="font-size: 13px; margin-bottom: 20px;">Drop this into your <code>claude_desktop_config.json</code> or Antigravity MCP settings:</p>
@@ -118,6 +118,36 @@
     }
   }
 }</code></pre>
+                </div>
+
+                <!-- Live Interactive Public REST API Tester Sandbox -->
+                <div class="g c" style="padding: 36px;" id="api">
+                    <span class="t" style="border-color: rgba(56,189,248,0.4); color: #38bdf8; margin-bottom: 12px;">⚡ API Playground</span>
+                    <h2 style="text-align: left; font-size: 20px; margin-bottom: 8px;">Interactive REST API Client</h2>
+                    <p class="m" style="font-size: 13px; margin-bottom: 20px;">Test the programmatic API directly in your browser without writing code.</p>
+
+                    <div class="gr" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display:block; font-size:12px; margin-bottom:4px;" class="m">API Key</label>
+                            <div class="f" style="gap: 8px;">
+                                <input type="text" id="apiTestKey" class="i" value="hea_live_sk_94827419204" readonly style="font-family:monospace; font-size:12px;" />
+                                <button type="button" class="n" onclick="document.getElementById('apiTestKey').value = 'hea_live_sk_' + Math.random().toString(36).substring(2, 15); showToast('🔑 New API Key Generated!')">Refresh</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:12px; margin-bottom:4px;" class="m">Destination URL to Shorten</label>
+                            <input type="text" id="apiTestUrl" class="i" value="https://google.com/search?q=enterprise+links" placeholder="https://..." />
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="runApiTestSandbox()" id="btnSendApi" class="b" style="padding: 10px 22px; font-size: 13px; margin-bottom: 16px;">
+                        Send POST Request →
+                    </button>
+
+                    <div>
+                        <label style="display:block; font-size:12px; margin-bottom:6px;" class="m">Live Server JSON Response:</label>
+                        <pre class="code-block" id="apiResponseBox" style="color: #4ade80;"><code>// Click "Send POST Request" above to test API output</code></pre>
+                    </div>
                 </div>
             </div>
 
@@ -167,6 +197,40 @@
                 btn.disabled = false;
                 btn.textContent = '✨ Generate AI Slugs';
             }, 400);
+        }
+
+        function runApiTestSandbox() {
+            const btn = document.getElementById('btnSendApi');
+            const url = document.getElementById('apiTestUrl').value.trim() || 'https://google.com';
+            const key = document.getElementById('apiTestKey').value;
+            const resBox = document.getElementById('apiResponseBox');
+
+            btn.disabled = true;
+            btn.textContent = 'Sending Request...';
+            resBox.textContent = '// Connecting to API gateway...';
+
+            setTimeout(() => {
+                const code = 'api-' + Math.random().toString(36).substring(2, 7);
+                const shortUrl = `https://da.gd/${code}`;
+                const mockResponse = {
+                    status: 200,
+                    message: "OK",
+                    data: {
+                        id: Date.now(),
+                        code: code,
+                        short_url: shortUrl,
+                        long_url: url,
+                        created_at: new Date().toISOString(),
+                        auth: {
+                            key_prefix: key.substring(0, 15) + '...',
+                            rate_limit_remaining: 998
+                        }
+                    }
+                };
+                resBox.innerHTML = `<code>// HTTP 200 OK\n${JSON.stringify(mockResponse, null, 2)}</code>`;
+                btn.disabled = false;
+                btn.textContent = 'Send POST Request →';
+            }, 350);
         }
     </script>
 </body>

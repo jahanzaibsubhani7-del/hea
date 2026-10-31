@@ -83,8 +83,12 @@
                             <p class="m" style="font-size: 13px;" id="tableCountText">Showing 0 active short links</p>
                         </div>
 
-                        <div class="f" style="gap: 8px;">
-                            <input type="text" id="searchInput" placeholder="Search code or URL..." class="i" style="padding: 8px 12px; width: 220px; font-size: 13px;">
+                        <div class="f" style="gap: 8px; flex-wrap: wrap;">
+                            <select id="tagFilter" class="i" style="padding: 8px 12px; width: 130px; font-size: 13px; background: #0f172a; color: #fff;">
+                                <option value="">All Tags</option>
+                            </select>
+                            <input type="text" id="searchInput" placeholder="Search code, URL or tag..." class="i" style="padding: 8px 12px; width: 200px; font-size: 13px;">
+                            <button type="button" onclick="exportLinksToCsv()" class="n" style="padding: 8px 14px; font-size: 12px;">⬇ Export CSV</button>
                         </div>
                     </div>
 
@@ -123,6 +127,50 @@
                 <a id="modalDownloadBtn" href="#" target="_blank" class="b" style="padding: 10px 18px; font-size: 13px;">Download PNG</a>
                 <button type="button" onclick="closeQrModal()" class="n" style="padding: 10px 18px; font-size: 13px;">Close</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Dynamic Link Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="g c" style="max-width: 480px; width: 100%; padding: 30px;">
+            <div class="f" style="justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 18px;">Edit Dynamic Destination</h3>
+                <button type="button" onclick="closeEditModal()" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
+            </div>
+            <p class="m" style="font-size: 12px; margin-bottom: 20px;">Updating destination preserves QR codes and existing links.</p>
+            <form id="editForm">
+                <input type="hidden" id="editLinkId" />
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-size:12px; margin-bottom:4px;" class="m">Short Code (Fixed)</label>
+                    <input type="text" id="editShortCode" class="i" disabled style="opacity: 0.7;" />
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-size:12px; margin-bottom:4px;" class="m">Destination Long URL</label>
+                    <input type="text" id="editLongUrl" class="i" required />
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <label style="display:block; font-size:12px; margin-bottom:4px;" class="m">Tags (comma-separated)</label>
+                    <input type="text" id="editTags" class="i" placeholder="promo, social, vip" />
+                </div>
+                <div class="gr" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="display:block; font-size:11px; margin-bottom:4px;" class="m">🔒 Password</label>
+                        <input type="password" id="editPassword" class="i" placeholder="Optional" />
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:11px; margin-bottom:4px;" class="m">⏳ Expiry Date</label>
+                        <input type="date" id="editExpiry" class="i" />
+                    </div>
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <label style="display:block; font-size:11px; margin-bottom:4px;" class="m">📱 Mobile Dynamic Redirect URL</label>
+                    <input type="text" id="editMobileUrl" class="i" placeholder="e.g. https://m.yoursite.com" />
+                </div>
+                <div class="f" style="gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeEditModal()" class="n" style="padding: 10px 18px;">Cancel</button>
+                    <button type="submit" class="b" style="padding: 10px 22px;">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -226,11 +274,28 @@
             document.getElementById('metricMobileClicks').textContent = mobileClicks.toLocaleString();
             document.getElementById('metricDesktopClicks').textContent = desktopClicks.toLocaleString();
 
-            // Filter links
-            const filtered = links.filter(l => 
-                l.code.toLowerCase().includes(searchTerm) || 
-                l.long_url.toLowerCase().includes(searchTerm)
-            );
+            // Filter links by search & tag
+            const selectedTag = document.getElementById('tagFilter') ? document.getElementById('tagFilter').value : '';
+            const filtered = links.filter(l => {
+                const matchSearch = l.code.toLowerCase().includes(searchTerm) || 
+                                    l.long_url.toLowerCase().includes(searchTerm) ||
+                                    (l.tags && l.tags.some(t => t.toLowerCase().includes(searchTerm)));
+                const matchTag = !selectedTag || (l.tags && l.tags.includes(selectedTag));
+                return matchSearch && matchTag;
+            });
+
+            // Populate unique tags
+            const tagSelect = document.getElementById('tagFilter');
+            if (tagSelect && !tagSelect.hasAttribute('data-init')) {
+                const allTags = new Set();
+                links.forEach(l => {
+                    if (l.tags && Array.isArray(l.tags)) l.tags.forEach(t => allTags.add(t));
+                });
+                tagSelect.innerHTML = '<option value="">All Tags</option>' + 
+                    Array.from(allTags).map(t => `<option value="${t}">#${t}</option>`).join('');
+                tagSelect.setAttribute('data-init', 'true');
+                tagSelect.addEventListener('change', () => renderDashboard());
+            }
 
             document.getElementById('tableCountText').textContent = `Showing ${filtered.length} active short link(s)`;
 
@@ -265,23 +330,28 @@
                         </a>
                     </td>
                     <td style="padding: 14px;">
-                        <a href="${link.long_url}" target="_blank" class="m" style="max-width: 320px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${link.long_url}">
+                        <a href="${link.long_url}" target="_blank" class="m" style="max-width: 280px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${link.long_url}">
                             ${link.long_url}
                         </a>
+                        ${link.tags && link.tags.length > 0 ? `<div style="margin-top:4px;">${link.tags.map(t => `<span class="t" style="font-size:10px;padding:1px 6px;margin-right:4px;">#${t}</span>`).join('')}</div>` : ''}
+                        ${link.password ? '<span class="t" style="font-size:10px;color:#fcd34d;border-color:rgba(252,211,77,0.3);margin-top:4px;">🔒 Protected</span>' : ''}
+                        ${link.expiry ? `<span class="t" style="font-size:10px;color:#f87171;border-color:rgba(248,113,113,0.3);margin-top:4px;">⏳ Exp: ${link.expiry}</span>` : ''}
                     </td>
                     <td style="padding: 14px;">
                         <span class="t" style="background: rgba(96,165,250,0.25); color: #93c5fd; font-weight: 600;">
                             ${link.clicks || 0} clicks
                         </span>
+                        <div class="m" style="font-size: 11px; margin-top: 4px;">${link.mobile_clicks || 0} mob / ${link.desktop_clicks || 0} desk</div>
                     </td>
                     <td class="m" style="padding: 14px; font-size: 12px;">
                         ${createdDate}
                     </td>
                     <td style="padding: 14px; text-align: right;">
-                        <div class="f" style="justify-content: flex-end; gap: 8px;">
-                            <button onclick="copyLink('${shortUrl}')" class="n" style="padding: 5px 10px; font-size: 11px;">Copy</button>
-                            <button onclick="openQrModal('${link.code}', '${shortUrl}')" class="n" style="padding: 5px 10px; font-size: 11px;">QR Code</button>
-                            <button onclick="deleteLink(${link.id}, '${link.code}')" class="n" style="padding: 5px 10px; font-size: 11px; color: #fca5a5; border-color: rgba(239,68,68,0.4)">Delete</button>
+                        <div class="f" style="justify-content: flex-end; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="copyLink('${shortUrl}')" class="n" style="padding: 5px 8px; font-size: 11px;">Copy</button>
+                            <button onclick="openEditModal(${link.id})" class="n" style="padding: 5px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(96,165,250,0.4)">Edit</button>
+                            <button onclick="openQrModal('${link.code}', '${shortUrl}')" class="n" style="padding: 5px 8px; font-size: 11px;">QR</button>
+                            <button onclick="deleteLink(${link.id}, '${link.code}')" class="n" style="padding: 5px 8px; font-size: 11px; color: #fca5a5; border-color: rgba(239,68,68,0.4)">Delete</button>
                         </div>
                     </td>
                 `;
@@ -329,6 +399,64 @@
         qrModal.addEventListener('click', (e) => {
             if (e.target === qrModal) closeQrModal();
         });
+
+        // Edit Dynamic Link Handlers
+        window.openEditModal = function(id) {
+            const links = getLinks();
+            const link = links.find(l => l.id === id);
+            if (!link) return;
+            document.getElementById('editLinkId').value = link.id;
+            document.getElementById('editShortCode').value = `/${link.code}`;
+            document.getElementById('editLongUrl').value = link.long_url || '';
+            document.getElementById('editTags').value = (link.tags && Array.isArray(link.tags)) ? link.tags.join(', ') : '';
+            document.getElementById('editPassword').value = link.password || '';
+            document.getElementById('editExpiry').value = link.expiry || '';
+            document.getElementById('editMobileUrl').value = link.mobile_url || '';
+            document.getElementById('editModal').classList.add('open');
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('open');
+        };
+
+        document.getElementById('editForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = parseFloat(document.getElementById('editLinkId').value);
+            let links = getLinks();
+            const link = links.find(l => l.id === id);
+            if (!link) return;
+
+            let newUrl = document.getElementById('editLongUrl').value.trim();
+            if (!/^https?:\/\//i.test(newUrl)) newUrl = 'https://' + newUrl;
+
+            link.long_url = newUrl;
+            link.tags = document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(Boolean);
+            link.password = document.getElementById('editPassword').value.trim();
+            link.expiry = document.getElementById('editExpiry').value;
+            link.mobile_url = document.getElementById('editMobileUrl').value.trim();
+
+            saveLinks(links);
+            closeEditModal();
+            showNotice(`Link <b>/${link.code}</b> destination updated successfully!`);
+        });
+
+        // Export Links to CSV
+        window.exportLinksToCsv = function() {
+            const links = getLinks();
+            if (links.length === 0) return alert('No links to export.');
+            let csv = 'data:text/csv;charset=utf-8,Code,Short URL,Destination URL,Clicks,Mobile Clicks,Desktop Clicks,Tags,Expiry,Created\n';
+            links.forEach(l => {
+                const tags = (l.tags || []).join(';');
+                csv += `"${l.code}","${l.short_url || ''}","${l.long_url}","${l.clicks || 0}","${l.mobile_clicks || 0}","${l.desktop_clicks || 0}","${tags}","${l.expiry || ''}","${l.created_at}"\n`;
+            });
+            const encodedUri = encodeURI(csv);
+            const a = document.createElement('a');
+            a.href = encodedUri;
+            a.download = `hea_links_export_${Date.now()}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
 
         // 9. Create Link Form
         const createLinkForm = document.getElementById('createLinkForm');

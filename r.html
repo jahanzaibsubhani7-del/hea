@@ -15,14 +15,36 @@
         <div class="o" style="width:460px;height:460px;background:#14b8a6;right:-100px;top:180px"></div>
         <div class="o" style="width:480px;height:480px;background:#7c3aed;left:30%;bottom:-160px"></div>
 
-        <div class="z" style="max-width: 460px; width: 100%; padding: 20px; text-align: center;">
-            <div class="g c" style="padding: 40px 30px;">
-                <span style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);box-shadow:0 0 25px rgba(56,189,248,.6);display:inline-block;margin-bottom:16px;"></span>
+        <div class="z" style="max-width: 480px; width: 100%; padding: 20px; text-align: center;">
+            <div class="g c" style="padding: 40px 30px;" id="mainCard">
+                <span id="gatewayIcon" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);box-shadow:0 0 25px rgba(56,189,248,.6);display:inline-block;margin-bottom:16px;"></span>
                 
                 <h2 style="font-size: 22px; margin-bottom: 8px;" id="statusTitle">Connecting you...</h2>
-                <p class="m" style="font-size: 13px; margin-bottom: 24px;" id="statusMsg">Redirecting to your destination in a moment.</p>
+                <div class="m" style="font-size: 13px; margin-bottom: 24px;" id="statusMsg">Redirecting to your destination in a moment.</div>
 
-                <div id="actionArea" style="display: none;">
+                <!-- Password Protection Block -->
+                <div id="passwordBlock" style="display: none; margin-top: 10px;">
+                    <p style="font-size: 13px; margin-bottom: 14px; color: #cbd5e1;">🔒 This short link is protected with a password.</p>
+                    <form id="pwdForm" style="display: flex; gap: 8px; flex-direction: column;">
+                        <input type="password" id="pwdInput" class="i" placeholder="Enter link password" required autofocus style="text-align: center;" />
+                        <button type="submit" class="b" style="padding: 12px; margin-top: 6px;">Unlock &amp; Proceed →</button>
+                    </form>
+                    <p id="pwdError" style="color: #fca5a5; font-size: 12px; margin-top: 10px; display: none;">⚠️ Incorrect password. Please try again.</p>
+                </div>
+
+                <!-- Safety Preview Mode Block -->
+                <div id="previewBlock" style="display: none; margin-top: 10px;">
+                    <div style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 12px; padding: 14px; margin-bottom: 18px; text-align: left;">
+                        <span style="font-size: 12px; color: #4ade80; font-weight: 600;">🛡️ Verified Destination</span>
+                        <p style="font-size: 12px; color: #a7f3d0; margin-top: 4px;" id="previewDestText"></p>
+                    </div>
+                    <button type="button" id="btnProceedDirect" class="b" style="width: 100%; padding: 12px; font-size: 14px;">
+                        Proceed to Destination (<span id="countdownSec">3</span>s)
+                    </button>
+                </div>
+
+                <!-- Fallback Action Area -->
+                <div id="actionArea" style="display: none; margin-top: 20px;">
                     <a href="index.html" class="b" style="padding: 10px 22px; font-size: 14px;">Return to Homepage</a>
                 </div>
             </div>
@@ -40,8 +62,13 @@
         const titleEl = document.getElementById('statusTitle');
         const msgEl = document.getElementById('statusMsg');
         const actionArea = document.getElementById('actionArea');
+        const passwordBlock = document.getElementById('passwordBlock');
+        const previewBlock = document.getElementById('previewBlock');
+        const previewDestText = document.getElementById('previewDestText');
+        const btnProceedDirect = document.getElementById('btnProceedDirect');
+        const countdownSec = document.getElementById('countdownSec');
 
-        // Retrieve links from localStorage if code exists
+        // Retrieve links from localStorage
         let links = [];
         try {
             links = JSON.parse(localStorage.getItem('hea_links') || '[]');
@@ -49,54 +76,118 @@
             links = [];
         }
 
-        if (!targetUrl && code && links.length > 0) {
-            const match = links.find(l => l.code && l.code.toLowerCase() === code.toLowerCase());
-            if (match && match.long_url) {
-                targetUrl = match.long_url;
-                // Increment click counter
-                match.clicks = (match.clicks || 0) + 1;
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                if (isMobile) {
-                    match.mobile_clicks = (match.mobile_clicks || 0) + 1;
-                } else {
-                    match.desktop_clicks = (match.desktop_clicks || 0) + 1;
-                }
-                try {
-                    localStorage.setItem('hea_links', JSON.stringify(links));
-                } catch(e) {}
-            }
+        let linkObj = null;
+        if (code && links.length > 0) {
+            linkObj = links.find(l => l.code && l.code.toLowerCase() === code.toLowerCase());
         }
 
-        // Fallback demo links
-        if (!targetUrl && code) {
+        // Demo seed fallback if empty
+        if (!linkObj && code) {
             const defaults = {
-                'summer-sale': 'https://google.com',
-                'launch-offer': 'https://youtube.com',
-                'vip-pass': 'https://github.com'
+                'summer-sale': { long_url: 'https://google.com' },
+                'launch-offer': { long_url: 'https://youtube.com' },
+                'vip-pass': { long_url: 'https://github.com' }
             };
             if (defaults[code.toLowerCase()]) {
-                targetUrl = defaults[code.toLowerCase()];
+                linkObj = defaults[code.toLowerCase()];
             }
         }
 
+        if (linkObj) {
+            // Check Expiry Date
+            if (linkObj.expiry) {
+                const expDate = new Date(linkObj.expiry);
+                if (!isNaN(expDate) && expDate < new Date()) {
+                    titleEl.textContent = '410 — Link Expired';
+                    msgEl.innerHTML = `This short link <b>/${code}</b> expired on <b>${expDate.toLocaleDateString()}</b>.`;
+                    actionArea.style.display = 'block';
+                    throw new Error('Link expired');
+                }
+            }
+
+            // Check Dynamic Mobile Device Routing
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && linkObj.mobile_url) {
+                targetUrl = linkObj.mobile_url;
+            } else if (linkObj.long_url) {
+                targetUrl = linkObj.long_url;
+            }
+
+            // Increment Click Analytics
+            linkObj.clicks = (linkObj.clicks || 0) + 1;
+            if (isMobile) {
+                linkObj.mobile_clicks = (linkObj.mobile_clicks || 0) + 1;
+            } else {
+                linkObj.desktop_clicks = (linkObj.desktop_clicks || 0) + 1;
+            }
+            try {
+                localStorage.setItem('hea_links', JSON.stringify(links));
+            } catch(e) {}
+        }
+
+        // Final URL destination check
         if (targetUrl) {
-            // Fix: ensure URL has http:// or https:// so it never redirects to relative 404
             if (!/^https?:\/\//i.test(targetUrl)) {
                 targetUrl = 'https://' + targetUrl;
             }
 
+            // 1. Password Protection Check
+            if (linkObj && linkObj.password) {
+                titleEl.textContent = 'Password Required';
+                msgEl.textContent = 'Please enter the access key to proceed to destination.';
+                passwordBlock.style.display = 'block';
+
+                document.getElementById('pwdForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const entered = document.getElementById('pwdInput').value;
+                    if (entered === linkObj.password) {
+                        doRedirect(targetUrl);
+                    } else {
+                        document.getElementById('pwdError').style.display = 'block';
+                    }
+                });
+                return;
+            }
+
+            // 2. Safety Interstitial Preview Check
+            const hasPreviewFlag = params.get('preview') === '1' || (linkObj && linkObj.preview);
+            if (hasPreviewFlag) {
+                titleEl.textContent = 'Safety Interstitial';
+                msgEl.textContent = 'Confirm destination before proceeding.';
+                previewDestText.textContent = targetUrl;
+                previewBlock.style.display = 'block';
+
+                let count = 3;
+                btnProceedDirect.onclick = () => doRedirect(targetUrl);
+
+                const timer = setInterval(() => {
+                    count--;
+                    countdownSec.textContent = count;
+                    if (count <= 0) {
+                        clearInterval(timer);
+                        doRedirect(targetUrl);
+                    }
+                }, 1000);
+                return;
+            }
+
+            // 3. Normal Instant 302 Redirection
             titleEl.textContent = 'Redirecting...';
             msgEl.innerHTML = `Forwarding to destination:<br><b style="color:#7cb2ff;word-break:break-all;">${targetUrl}</b>`;
-
             setTimeout(() => {
-                window.location.href = targetUrl;
+                doRedirect(targetUrl);
             }, 300);
+
         } else {
             titleEl.textContent = '404 — Link Not Found';
             msgEl.textContent = code 
                 ? `The short link "/${code}" does not exist or has expired.` 
                 : 'No destination link was specified.';
             actionArea.style.display = 'block';
+        }
+
+        function doRedirect(url) {
+            window.location.href = url;
         }
     </script>
 </body>

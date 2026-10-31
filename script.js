@@ -420,19 +420,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3200);
     }
 
-    // Tab Switching (Short Link vs QR Code)
+    // Tab Switching (Short Link vs QR Code vs Bulk)
+    const tabBulk = document.getElementById('tabBulk');
+    const singleWrap = document.getElementById('singleShortenerWrap');
+    const bulkWrap = document.getElementById('bulkShortenerWrap');
+
     if (tabLink && tabQR) {
         tabLink.addEventListener('click', () => {
             tabLink.classList.add('tab-active');
             tabQR.classList.remove('tab-active');
+            if (tabBulk) tabBulk.classList.remove('tab-active');
+            if (singleWrap) singleWrap.style.display = 'block';
+            if (bulkWrap) bulkWrap.style.display = 'none';
             if (qrPreviewContainer) qrPreviewContainer.style.display = 'none';
         });
 
         tabQR.addEventListener('click', () => {
             tabQR.classList.add('tab-active');
             tabLink.classList.remove('tab-active');
+            if (tabBulk) tabBulk.classList.remove('tab-active');
+            if (singleWrap) singleWrap.style.display = 'block';
+            if (bulkWrap) bulkWrap.style.display = 'none';
             showQrCode();
         });
+
+        if (tabBulk) {
+            tabBulk.addEventListener('click', () => {
+                tabBulk.classList.add('tab-active');
+                tabLink.classList.remove('tab-active');
+                tabQR.classList.remove('tab-active');
+                if (singleWrap) singleWrap.style.display = 'none';
+                if (bulkWrap) bulkWrap.style.display = 'block';
+                if (qrPreviewContainer) qrPreviewContainer.style.display = 'none';
+            });
+        }
     }
 
     // Slug Generator
@@ -551,11 +572,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentShortUrl = shortUrl;
 
+            // Advanced options extraction
+            const tagsVal = document.getElementById('tagsInput') ? document.getElementById('tagsInput').value.trim() : '';
+            const passwordVal = document.getElementById('passwordInput') ? document.getElementById('passwordInput').value.trim() : '';
+            const expiryVal = document.getElementById('expiryInput') ? document.getElementById('expiryInput').value.trim() : '';
+            const mobileUrlVal = document.getElementById('mobileUrlInput') ? document.getElementById('mobileUrlInput').value.trim() : '';
+            const previewVal = document.getElementById('previewCheck') ? document.getElementById('previewCheck').checked : false;
+
             const newLink = {
                 id: Date.now(),
                 code: code,
                 short_url: shortUrl,
                 long_url: rawUrl,
+                tags: tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(Boolean) : [],
+                password: passwordVal,
+                expiry: expiryVal,
+                mobile_url: mobileUrlVal,
+                preview: previewVal,
                 clicks: 0,
                 mobile_clicks: 0,
                 desktop_clicks: 0,
@@ -581,6 +614,88 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tabQR && tabQR.classList.contains('tab-active')) {
                 showQrCode();
             }
+        });
+    }
+
+    // Bulk Shortener Logic
+    const btnRunBulk = document.getElementById('btnRunBulk');
+    const bulkUrlsInput = document.getElementById('bulkUrlsInput');
+    const bulkResultsArea = document.getElementById('bulkResultsArea');
+    const bulkResultsTbody = document.getElementById('bulkResultsTbody');
+    const btnExportBulkCsv = document.getElementById('btnExportBulkCsv');
+    let bulkGeneratedLinks = [];
+
+    if (btnRunBulk) {
+        btnRunBulk.addEventListener('click', () => {
+            const lines = bulkUrlsInput.value.split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length === 0) {
+                showToast('⚠️ Please enter at least one URL.', true);
+                return;
+            }
+
+            btnRunBulk.disabled = true;
+            btnRunBulk.textContent = 'Batch Shortening...';
+            bulkResultsTbody.innerHTML = '';
+            bulkGeneratedLinks = [];
+            let links = getStoredLinks();
+
+            for (let line of lines) {
+                let target = line;
+                if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
+
+                let code = makeSlug();
+                while (links.some(l => l.code === code)) {
+                    code = makeSlug();
+                }
+
+                const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+                const short = `${base}/r.html?c=${encodeURIComponent(code)}&u=${encodeURIComponent(target)}`;
+
+                const item = {
+                    id: Date.now() + Math.random(),
+                    code: code,
+                    short_url: short,
+                    long_url: target,
+                    clicks: 0,
+                    created_at: new Date().toISOString()
+                };
+
+                links.unshift(item);
+                bulkGeneratedLinks.push(item);
+
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+                tr.innerHTML = `
+                    <td style="padding:8px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${target}</td>
+                    <td style="padding:8px;"><a href="${short}" target="_blank" style="color:#60a5fa;font-weight:600;">/${code}</a></td>
+                    <td style="padding:8px;text-align:right;"><button class="n" style="padding:4px 8px;font-size:11px;" onclick="navigator.clipboard.writeText('${short}');showToast('📋 Copied!')">Copy</button></td>
+                `;
+                bulkResultsTbody.appendChild(tr);
+            }
+
+            saveStoredLinks(links);
+            bulkResultsArea.style.display = 'block';
+            if (btnExportBulkCsv) btnExportBulkCsv.style.display = 'inline-flex';
+            btnRunBulk.disabled = false;
+            btnRunBulk.textContent = '⚡ Shorten All';
+            showToast(`✨ ${bulkGeneratedLinks.length} links batch shortened!`);
+        });
+    }
+
+    if (btnExportBulkCsv) {
+        btnExportBulkCsv.addEventListener('click', () => {
+            if (bulkGeneratedLinks.length === 0) return;
+            let csvContent = 'data:text/csv;charset=utf-8,Original URL,Short Code,Short URL,Created Date\n';
+            bulkGeneratedLinks.forEach(l => {
+                csvContent += `"${l.long_url}","${l.code}","${l.short_url}","${l.created_at}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `hea_bulk_links_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     }
 

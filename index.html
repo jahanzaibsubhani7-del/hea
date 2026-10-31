@@ -34,44 +34,104 @@
 
                 <!-- Exact Glass Card Shortener -->
                 <div class="g c" style="max-width:720px;margin:44px auto 0;text-align:left;padding:26px">
-                    <div class="f" style="gap:10px;margin-bottom:16px">
+                    <div class="f" style="gap:10px;margin-bottom:16px;flex-wrap:wrap;">
                         <span class="t tab-active" id="tabLink" style="padding:7px 14px;font-size:13px;cursor:pointer">Short link</span>
                         <span class="t" id="tabQR" style="padding:7px 14px;font-size:13px;cursor:pointer">QR code</span>
+                        <span class="t" id="tabBulk" style="padding:7px 14px;font-size:13px;cursor:pointer">⚡ Bulk CSV Shortener</span>
                     </div>
 
-                    <p style="font-size:13px;font-weight:600;margin-bottom:8px">Paste your long link</p>
-                    <form id="shortenerForm">
-                        <div class="f" style="gap:12px;flex-wrap:wrap">
-                            <input type="text" id="urlInput" class="i m" style="flex:1;min-width:260px" placeholder="e.g. google.com or https://example.com/very-long-link" value="https://google.com" required autocomplete="off" />
-                            <button type="submit" id="shortenBtn" class="b" style="white-space:nowrap">Shorten link</button>
-                        </div>
+                    <!-- Single Shortener Mode -->
+                    <div id="singleShortenerWrap">
+                        <p style="font-size:13px;font-weight:600;margin-bottom:8px">Paste your long destination link</p>
+                        <form id="shortenerForm">
+                            <div class="f" style="gap:12px;flex-wrap:wrap">
+                                <input type="text" id="urlInput" class="i m" style="flex:1;min-width:260px" placeholder="e.g. google.com or https://example.com/very-long-link" value="https://google.com" required autocomplete="off" />
+                                <button type="submit" id="shortenBtn" class="b" style="white-space:nowrap">Shorten link</button>
+                            </div>
 
-                        <div style="margin-top:10px;">
-                            <span style="font-size:11px;color:#a9b6d6;cursor:pointer;" onclick="const el = document.getElementById('customSlugWrap'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
-                                ⚙️ <u>Custom back-half (optional)</u>
-                            </span>
-                            <div id="customSlugWrap" style="display:none;margin-top:8px;">
-                                <input type="text" id="customInput" class="i m" placeholder="e.g. summer-sale" style="padding:10px 14px;font-size:13px;" />
+                            <!-- Advanced Targeting, Password, Expiry & Tags -->
+                            <div style="margin-top:12px;">
+                                <span style="font-size:12px;color:#60a5fa;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="const el = document.getElementById('advancedOptionsWrap'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">
+                                    ⚙️ <u>Advanced Options (Custom Slug, Tags, Password, Expiry &amp; Device Routing)</u>
+                                </span>
+                                <div id="advancedOptionsWrap" style="display:none;margin-top:12px;padding:16px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);">
+                                    <div class="gr" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                        <div>
+                                            <label style="display:block;font-size:11px;margin-bottom:4px;" class="m">Custom Back-Half Slug</label>
+                                            <input type="text" id="customInput" class="i m" placeholder="e.g. summer-deals" style="padding:8px 12px;font-size:12px;" />
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:11px;margin-bottom:4px;" class="m">Tags (comma-separated)</label>
+                                            <input type="text" id="tagsInput" class="i m" placeholder="e.g. promo, social, vip" style="padding:8px 12px;font-size:12px;" />
+                                        </div>
+                                    </div>
+                                    <div class="gr" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                        <div>
+                                            <label style="display:block;font-size:11px;margin-bottom:4px;" class="m">🔒 Password Protection</label>
+                                            <input type="password" id="passwordInput" class="i m" placeholder="Optional access password" style="padding:8px 12px;font-size:12px;" />
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:11px;margin-bottom:4px;" class="m">⏳ Link Expiration Date</label>
+                                            <input type="date" id="expiryInput" class="i m" style="padding:8px 12px;font-size:12px;" />
+                                        </div>
+                                    </div>
+                                    <div class="gr" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label style="display:block;font-size:11px;margin-bottom:4px;" class="m">📱 Mobile Device Dynamic Redirect URL</label>
+                                            <input type="text" id="mobileUrlInput" class="i m" placeholder="e.g. https://m.yoursite.com" style="padding:8px 12px;font-size:12px;" />
+                                        </div>
+                                        <div style="display:flex;align-items:center;padding-top:18px;">
+                                            <label style="font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                                <input type="checkbox" id="previewCheck" />
+                                                <span>🛡️ Enable Safety Interstitial Preview</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="g f" id="resultCard" style="align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;margin-top:14px">
+                            <div style="max-width:calc(100% - 150px);">
+                                <p class="m" style="font-size:11px">Your short link (Click or Copy):</p>
+                                <a id="shortUrlDisplay" href="https://da.gd/czqL" target="_blank" style="font-weight:600;color:#7cb2ff;font-size:15px;word-break:break-all;text-decoration:none;display:inline-block;">https://da.gd/czqL</a>
+                            </div>
+                            <div class="f" style="gap:8px">
+                                <button type="button" id="copyBtn" class="n">Copy</button>
+                                <button type="button" id="viewQrBtn" class="n">QR code</button>
                             </div>
                         </div>
-                    </form>
 
-                    <div class="g f" id="resultCard" style="align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;margin-top:14px">
-                        <div style="max-width:calc(100% - 150px);">
-                            <p class="m" style="font-size:11px">Your short link (Click or Copy):</p>
-                            <a id="shortUrlDisplay" href="https://da.gd/czqL" target="_blank" style="font-weight:600;color:#7cb2ff;font-size:15px;word-break:break-all;text-decoration:none;display:inline-block;">https://da.gd/czqL</a>
-                        </div>
-                        <div class="f" style="gap:8px">
-                            <button type="button" id="copyBtn" class="n">Copy</button>
-                            <button type="button" id="viewQrBtn" class="n">QR code</button>
+                        <!-- QR Code Preview Block -->
+                        <div id="qrPreviewContainer" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,0.04);">
+                            <img id="qrImage" src="" alt="QR Preview" style="width:160px;height:160px;border-radius:12px;background:#fff;padding:8px;" />
+                            <div style="margin-top:10px;">
+                                <a id="downloadQrBtn" href="#" target="_blank" class="b" style="padding:8px 16px;font-size:12px;">Download PNG</a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- QR Code Preview Block -->
-                    <div id="qrPreviewContainer" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:14px;background:rgba(255,255,255,0.04);">
-                        <img id="qrImage" src="" alt="QR Preview" style="width:160px;height:160px;border-radius:12px;background:#fff;padding:8px;" />
-                        <div style="margin-top:10px;">
-                            <a id="downloadQrBtn" href="#" target="_blank" class="b" style="padding:8px 16px;font-size:12px;">Download PNG</a>
+                    <!-- Bulk Shortener Mode -->
+                    <div id="bulkShortenerWrap" style="display:none;">
+                        <p style="font-size:13px;font-weight:600;margin-bottom:8px">Batch Shorten Multiple Links (One URL per line or paste CSV):</p>
+                        <textarea id="bulkUrlsInput" class="i m" style="height:110px;resize:none;font-family:monospace;font-size:12px;" placeholder="https://google.com&#10;https://youtube.com&#10;https://github.com"></textarea>
+                        
+                        <div class="f" style="gap:10px;margin-top:12px;">
+                            <button type="button" id="btnRunBulk" class="b" style="padding:10px 20px;font-size:13px;">⚡ Shorten All</button>
+                            <button type="button" id="btnExportBulkCsv" class="n" style="padding:10px 18px;font-size:13px;display:none;">⬇ Export Results CSV</button>
+                        </div>
+
+                        <div id="bulkResultsArea" style="margin-top:16px;max-height:220px;overflow-y:auto;display:none;background:rgba(0,0,0,0.3);border-radius:12px;border:1px solid rgba(255,255,255,0.1);padding:12px;">
+                            <table style="width:100%;font-size:12px;border-collapse:collapse;text-align:left;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid rgba(255,255,255,0.15);color:#94a3b8;">
+                                        <th style="padding:8px;">Original URL</th>
+                                        <th style="padding:8px;">Short Link</th>
+                                        <th style="padding:8px;text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bulkResultsTbody"></tbody>
+                            </table>
                         </div>
                     </div>
 
