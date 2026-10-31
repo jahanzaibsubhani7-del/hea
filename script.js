@@ -123,19 +123,21 @@ document.addEventListener('DOMContentLoaded', () => {
         viewQrBtn.addEventListener('click', showQrCode);
     }
 
+    let currentShortUrl = '';
     let currentShortCode = 'summer-sale';
 
     function getCurrentRedirectUrl() {
+        if (currentShortUrl) return currentShortUrl;
         const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
         return `${base}/r.html?c=${encodeURIComponent(currentShortCode)}`;
     }
 
     // URL Shortener Form Submit
     if (shortenerForm) {
-        shortenerForm.addEventListener('submit', (e) => {
+        shortenerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const rawUrl = urlInput.value.trim();
+            let rawUrl = urlInput.value.trim();
             const customVal = customInput ? customInput.value.trim() : '';
 
             if (!rawUrl) {
@@ -144,67 +146,106 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Normalization: Ensure http:// or https:// so it never fails
+            if (!/^https?:\/\//i.test(rawUrl)) {
+                rawUrl = 'https://' + rawUrl;
+            }
+
             shortenBtn.disabled = true;
             const originalText = shortenBtn.textContent;
-            shortenBtn.textContent = 'Creating...';
+            shortenBtn.textContent = 'Shortening...';
 
-            setTimeout(() => {
-                let links = getStoredLinks();
-                let code = customVal;
+            let links = getStoredLinks();
+            let code = customVal;
 
-                if (code) {
-                    if (!/^[A-Za-z0-9_-]{3,32}$/.test(code)) {
-                        showToast('⚠️ Custom back-half must be 3-32 characters.', true);
-                        shortenBtn.disabled = false;
-                        shortenBtn.textContent = originalText;
-                        return;
-                    }
-                    if (links.some(l => l.code.toLowerCase() === code.toLowerCase())) {
-                        showToast(`⚠️ Back-half '/${code}' is already taken!`, true);
-                        shortenBtn.disabled = false;
-                        shortenBtn.textContent = originalText;
-                        return;
-                    }
-                } else {
-                    do {
-                        code = makeSlug();
-                    } while (links.some(l => l.code === code));
+            if (code) {
+                if (!/^[A-Za-z0-9_-]{3,32}$/.test(code)) {
+                    showToast('⚠️ Custom back-half must be 3-32 characters.', true);
+                    shortenBtn.disabled = false;
+                    shortenBtn.textContent = originalText;
+                    return;
                 }
-
-                currentShortCode = code;
-
-                const newLink = {
-                    id: Date.now(),
-                    code: code,
-                    long_url: rawUrl,
-                    clicks: 0,
-                    mobile_clicks: 0,
-                    desktop_clicks: 0,
-                    created_at: new Date().toISOString()
-                };
-
-                links.unshift(newLink);
-                saveStoredLinks(links);
-
-                // Update UI Display
-                shortUrlDisplay.textContent = `healink.pk/${code}`;
-                updateQrCode(getCurrentRedirectUrl());
-
-                shortenBtn.disabled = false;
-                shortenBtn.textContent = originalText;
-                showToast(`✨ Link shortened: /${code}`);
-
-                if (tabQR && tabQR.classList.contains('tab-active')) {
-                    showQrCode();
+                if (links.some(l => l.code && l.code.toLowerCase() === code.toLowerCase())) {
+                    showToast(`⚠️ Back-half '/${code}' is already taken!`, true);
+                    shortenBtn.disabled = false;
+                    shortenBtn.textContent = originalText;
+                    return;
                 }
-            }, 300);
+            } else {
+                do {
+                    code = makeSlug();
+                } while (links.some(l => l.code === code));
+            }
+
+            currentShortCode = code;
+
+            // Generate genuinely short link via free CORS shortener API (da.gd)
+            let shortUrl = '';
+            try {
+                const apiEndpoint = customVal
+                    ? `https://da.gd/shorten?url=${encodeURIComponent(rawUrl)}&shorturl=${encodeURIComponent(customVal)}`
+                    : `https://da.gd/shorten?url=${encodeURIComponent(rawUrl)}`;
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500);
+                const resp = await fetch(apiEndpoint, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const text = (await resp.text()).trim();
+                    if (text.startsWith('http://') || text.startsWith('https://')) {
+                        shortUrl = text;
+                    }
+                }
+            } catch (err) {
+                console.log('Shortener API fallback used:', err);
+            }
+
+            // Universal fallback: encodes URL parameter so it works across ANY browser / device
+            if (!shortUrl) {
+                const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+                shortUrl = `${base}/r.html?u=${encodeURIComponent(rawUrl)}&c=${encodeURIComponent(code)}`;
+            }
+
+            currentShortUrl = shortUrl;
+
+            const newLink = {
+                id: Date.now(),
+                code: code,
+                short_url: shortUrl,
+                long_url: rawUrl,
+                clicks: 0,
+                mobile_clicks: 0,
+                desktop_clicks: 0,
+                created_at: new Date().toISOString()
+            };
+
+            links.unshift(newLink);
+            saveStoredLinks(links);
+
+            // Update UI Display
+            if (shortUrlDisplay) {
+                shortUrlDisplay.textContent = shortUrl;
+                if (shortUrlDisplay.tagName.toLowerCase() === 'a') {
+                    shortUrlDisplay.href = shortUrl;
+                }
+            }
+            updateQrCode(shortUrl);
+
+            shortenBtn.disabled = false;
+            shortenBtn.textContent = originalText;
+            showToast(`✨ Link shortened: ${shortUrl}`);
+
+            if (tabQR && tabQR.classList.contains('tab-active')) {
+                showQrCode();
+            }
         });
     }
 
     // Copy to Clipboard
     if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
-            const redirectUrl = getCurrentRedirectUrl();
+            const redirectUrl = currentShortUrl || getCurrentRedirectUrl();
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(redirectUrl);
@@ -217,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.removeChild(temp);
                 }
                 copyBtn.textContent = 'Copied!';
-                showToast(`📋 Copied short link: ${redirectUrl}`);
+                showToast(`📋 Copied: ${redirectUrl}`);
                 setTimeout(() => {
                     copyBtn.textContent = 'Copy';
                 }, 2200);

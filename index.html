@@ -59,7 +59,7 @@
                     <p style="font-size:13px;font-weight:600;margin-bottom:8px">Paste your long link</p>
                     <form id="shortenerForm">
                         <div class="f" style="gap:12px;flex-wrap:wrap">
-                            <input type="url" id="urlInput" class="i m" style="flex:1;min-width:260px" placeholder="https://example.com/a-very-long-page-address" value="https://example.com/a-very-long-page-address" required />
+                            <input type="text" id="urlInput" class="i m" style="flex:1;min-width:260px" placeholder="e.g. google.com or https://example.com/very-long-link" value="https://google.com" required autocomplete="off" />
                             <button type="submit" id="shortenBtn" class="b" style="white-space:nowrap">Shorten link</button>
                         </div>
 
@@ -74,9 +74,9 @@
                     </form>
 
                     <div class="g f" id="resultCard" style="align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;margin-top:14px">
-                        <div>
-                            <p class="m" style="font-size:11px">Your short link</p>
-                            <p id="shortUrlDisplay" style="font-weight:600;color:#7cb2ff;font-size:15px">healink.pk/summer-sale</p>
+                        <div style="max-width:calc(100% - 150px);">
+                            <p class="m" style="font-size:11px">Your short link (Click or Copy):</p>
+                            <a id="shortUrlDisplay" href="https://da.gd/czqL" target="_blank" style="font-weight:600;color:#7cb2ff;font-size:15px;word-break:break-all;text-decoration:none;display:inline-block;">https://da.gd/czqL</a>
                         </div>
                         <div class="f" style="gap:8px">
                             <button type="button" id="copyBtn" class="n">Copy</button>

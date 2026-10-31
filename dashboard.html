@@ -69,9 +69,9 @@
                 <div class="g c" style="margin-bottom: 30px;">
                     <h3 style="font-size: 16px; margin-bottom: 14px;">Create Short Link from Admin</h3>
                     <form id="createLinkForm" class="f" style="gap: 12px; flex-wrap: wrap;">
-                        <input type="url" id="newUrl" class="i" placeholder="https://example.com/destination-page" required style="flex: 2; min-width: 240px;">
+                        <input type="text" id="newUrl" class="i" placeholder="e.g. google.com or https://example.com/page" required style="flex: 2; min-width: 240px;">
                         <input type="text" id="newCustom" class="i" placeholder="Custom back-half (optional)" style="flex: 1; min-width: 180px;">
-                        <button type="submit" class="b" style="white-space: nowrap;">Create Link</button>
+                        <button type="submit" id="adminCreateBtn" class="b" style="white-space: nowrap;">Create Link</button>
                     </form>
                 </div>
 
@@ -252,8 +252,8 @@
 
             filtered.forEach(link => {
                 // Generates redirect link
-                const shortUrl = `${currentHost}/r.html?c=${encodeURIComponent(link.code)}`;
-                const displayCode = `/${link.code}`;
+                const shortUrl = link.short_url || `${currentHost}/r.html?u=${encodeURIComponent(link.long_url)}&c=${encodeURIComponent(link.code)}`;
+                const displayCode = link.short_url ? link.short_url.replace(/^https?:\/\//, '') : `/${link.code}`;
                 const createdDate = new Date(link.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
                 const tr = document.createElement('tr');
@@ -332,12 +332,25 @@
 
         // 9. Create Link Form
         const createLinkForm = document.getElementById('createLinkForm');
-        createLinkForm.addEventListener('submit', (e) => {
+        createLinkForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const url = document.getElementById('newUrl').value.trim();
-            const custom = document.getElementById('newCustom').value.trim();
+            const urlInput = document.getElementById('newUrl');
+            const customInput = document.getElementById('newCustom');
+            const createBtn = document.getElementById('adminCreateBtn');
+            let url = urlInput.value.trim();
+            const custom = customInput.value.trim();
 
             if (!url) return;
+
+            // Normalize URL with protocol
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            if (createBtn) {
+                createBtn.disabled = true;
+                createBtn.textContent = 'Creating...';
+            }
 
             let links = getLinks();
 
@@ -346,11 +359,13 @@
                 // Validate alphanumeric custom code
                 if (!/^[A-Za-z0-9_-]{3,32}$/.test(code)) {
                     showNotice('Custom back-half must be 3-32 characters (letters, numbers, dashes, underscores).', true);
+                    if (createBtn) { createBtn.disabled = false; createBtn.textContent = 'Create Link'; }
                     return;
                 }
                 // Check uniqueness
-                if (links.some(l => l.code.toLowerCase() === code.toLowerCase())) {
+                if (links.some(l => l.code && l.code.toLowerCase() === code.toLowerCase())) {
                     showNotice(`The slug <b>/${code}</b> is already taken. Please pick another.`, true);
+                    if (createBtn) { createBtn.disabled = false; createBtn.textContent = 'Create Link'; }
                     return;
                 }
             } else {
@@ -364,9 +379,30 @@
                 } while (links.some(l => l.code === code));
             }
 
+            // Generate genuinely short link via free API
+            let shortUrl = '';
+            try {
+                const apiEndpoint = custom
+                    ? `https://da.gd/shorten?url=${encodeURIComponent(url)}&shorturl=${encodeURIComponent(custom)}`
+                    : `https://da.gd/shorten?url=${encodeURIComponent(url)}`;
+                const resp = await fetch(apiEndpoint);
+                if (resp.ok) {
+                    const text = (await resp.text()).trim();
+                    if (text.startsWith('http://') || text.startsWith('https://')) {
+                        shortUrl = text;
+                    }
+                }
+            } catch(e) {}
+
+            if (!shortUrl) {
+                const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+                shortUrl = `${base}/r.html?u=${encodeURIComponent(url)}&c=${encodeURIComponent(code)}`;
+            }
+
             const newLink = {
                 id: Date.now(),
                 code: code,
+                short_url: shortUrl,
                 long_url: url,
                 clicks: 0,
                 mobile_clicks: 0,
@@ -377,9 +413,13 @@
             links.unshift(newLink);
             saveLinks(links);
 
-            document.getElementById('newUrl').value = '';
-            document.getElementById('newCustom').value = '';
-            showNotice(`Link created! Short code: <b>/${code}</b>`);
+            urlInput.value = '';
+            customInput.value = '';
+            if (createBtn) {
+                createBtn.disabled = false;
+                createBtn.textContent = 'Create Link';
+            }
+            showNotice(`Link created! Short URL: <a href="${shortUrl}" target="_blank" style="color:#7cb2ff"><b>${shortUrl}</b></a>`);
         });
 
         // 10. Search Listener

@@ -31,6 +31,7 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
+        let targetUrl = params.get('u');
         let code = params.get('c');
         if (!code && window.location.hash) {
             code = window.location.hash.replace('#', '');
@@ -40,53 +41,62 @@
         const msgEl = document.getElementById('statusMsg');
         const actionArea = document.getElementById('actionArea');
 
-        if (!code) {
-            titleEl.textContent = 'Invalid Link';
-            msgEl.textContent = 'No short code was provided in the URL.';
-            actionArea.style.display = 'block';
-        } else {
-            // Retrieve links
-            let links = [];
-            try {
-                links = JSON.parse(localStorage.getItem('hea_links') || '[]');
-            } catch(e) {
-                links = [];
-            }
+        // Retrieve links from localStorage if code exists
+        let links = [];
+        try {
+            links = JSON.parse(localStorage.getItem('hea_links') || '[]');
+        } catch(e) {
+            links = [];
+        }
 
-            // Fallback default seeds if empty
-            if (links.length === 0) {
-                links = [
-                    { id: 1, code: 'summer-sale', long_url: 'https://google.com', clicks: 42, mobile_clicks: 28, desktop_clicks: 14 },
-                    { id: 2, code: 'launch-offer', long_url: 'https://youtube.com', clicks: 128, mobile_clicks: 86, desktop_clicks: 42 },
-                    { id: 3, code: 'vip-pass', long_url: 'https://github.com', clicks: 19, mobile_clicks: 11, desktop_clicks: 8 }
-                ];
-            }
-
-            const target = links.find(l => l.code.toLowerCase() === code.toLowerCase());
-
-            if (target && target.long_url) {
+        if (!targetUrl && code && links.length > 0) {
+            const match = links.find(l => l.code && l.code.toLowerCase() === code.toLowerCase());
+            if (match && match.long_url) {
+                targetUrl = match.long_url;
                 // Increment click counter
-                target.clicks = (target.clicks || 0) + 1;
+                match.clicks = (match.clicks || 0) + 1;
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 if (isMobile) {
-                    target.mobile_clicks = (target.mobile_clicks || 0) + 1;
+                    match.mobile_clicks = (match.mobile_clicks || 0) + 1;
                 } else {
-                    target.desktop_clicks = (target.desktop_clicks || 0) + 1;
+                    match.desktop_clicks = (match.desktop_clicks || 0) + 1;
                 }
-
-                localStorage.setItem('hea_links', JSON.stringify(links));
-
-                titleEl.textContent = 'Redirecting...';
-                msgEl.textContent = `Forwarding to: ${target.long_url}`;
-
-                setTimeout(() => {
-                    window.location.replace(target.long_url);
-                }, 300);
-            } else {
-                titleEl.textContent = '404 — Link Not Found';
-                msgEl.textContent = `The short link "/${code}" does not exist or has expired.`;
-                actionArea.style.display = 'block';
+                try {
+                    localStorage.setItem('hea_links', JSON.stringify(links));
+                } catch(e) {}
             }
+        }
+
+        // Fallback demo links
+        if (!targetUrl && code) {
+            const defaults = {
+                'summer-sale': 'https://google.com',
+                'launch-offer': 'https://youtube.com',
+                'vip-pass': 'https://github.com'
+            };
+            if (defaults[code.toLowerCase()]) {
+                targetUrl = defaults[code.toLowerCase()];
+            }
+        }
+
+        if (targetUrl) {
+            // Fix: ensure URL has http:// or https:// so it never redirects to relative 404
+            if (!/^https?:\/\//i.test(targetUrl)) {
+                targetUrl = 'https://' + targetUrl;
+            }
+
+            titleEl.textContent = 'Redirecting...';
+            msgEl.innerHTML = `Forwarding to destination:<br><b style="color:#7cb2ff;word-break:break-all;">${targetUrl}</b>`;
+
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 300);
+        } else {
+            titleEl.textContent = '404 — Link Not Found';
+            msgEl.textContent = code 
+                ? `The short link "/${code}" does not exist or has expired.` 
+                : 'No destination link was specified.';
+            actionArea.style.display = 'block';
         }
     </script>
 </body>
