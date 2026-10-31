@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Analytics &amp; Click Tracking — HEA Link</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .chart-bar-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            height: 180px;
+            padding-top: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+        .chart-bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .chart-bar-fill {
+            width: 100%;
+            max-width: 38px;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(180deg, #38bdf8, #2563eb);
+            transition: height 0.4s ease;
+            position: relative;
+        }
+        .chart-bar-fill:hover {
+            filter: brightness(1.2);
+        }
+        .chart-bar-fill::after {
+            content: attr(data-val);
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        .progress-pill {
+            height: 8px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+            margin: 6px 0 14px;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #38bdf8, #2563eb);
+        }
+    </style>
+</head>
+<body>
+    <div class="r" style="min-height: 1800px; padding-bottom: 80px;">
+        <!-- Ambient Glowing Orbs -->
+        <div class="o" style="width:520px;height:520px;background:#2563eb;left:-120px;top:-100px"></div>
+        <div class="o" style="width:460px;height:460px;background:#5eead4;right:-100px;top:180px"></div>
+        <div class="o" style="width:480px;height:480px;background:#7c3aed;left:30%;bottom:300px"></div>
+
+        <div class="z">
+            <!-- Global Enterprise Header Navbar with Bitly-style Mega Menu -->
+            <div id="siteNav"></div>
+
+            <!-- Page Hero -->
+            <div class="page-hero">
+                <span class="t" style="border-color: rgba(56,189,248,0.5); color: #38bdf8; margin-bottom: 12px;">📊 Deep Traffic Intelligence</span>
+                <h1>Real-Time Analytics &amp; Campaign Attribution</h1>
+                <p>Track every click, scan, and referral across devices, countries, and UTM campaigns with second-by-second precision.</p>
+            </div>
+
+            <div class="w">
+                <!-- 4 KPI Metrics -->
+                <div class="gr" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 30px;">
+                    <div class="g c">
+                        <span class="k" style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">TOTAL ENGAGEMENT</span>
+                        <h2 style="text-align: left; font-size: 34px; margin: 8px 0;" id="kpiClicks">14,289</h2>
+                        <p class="m" style="font-size: 12px;">↑ 24.8% vs last week</p>
+                    </div>
+                    <div class="g c">
+                        <span class="k" style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">UNIQUE VISITORS</span>
+                        <h2 style="text-align: left; font-size: 34px; margin: 8px 0; color: #5eead4;" id="kpiUniques">11,842</h2>
+                        <p class="m" style="font-size: 12px;">82.8% unique ratio</p>
+                    </div>
+                    <div class="g c">
+                        <span class="k" style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">QR SCAN CONVERSION</span>
+                        <h2 style="text-align: left; font-size: 34px; margin: 8px 0; color: #f97316;" id="kpiScans">3,491</h2>
+                        <p class="m" style="font-size: 12px;">Packaging &amp; print scans</p>
+                    </div>
+                    <div class="g c">
+                        <span class="k" style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em;">AVG REDIRECT LATENCY</span>
+                        <h2 style="text-align: left; font-size: 34px; margin: 8px 0; color: #a78bfa;">18ms</h2>
+                        <p class="m" style="font-size: 12px;">Edge CDN accelerated</p>
+                    </div>
+                </div>
+
+                <!-- Main Chart & Device Split Split -->
+                <div class="gr" style="grid-template-columns: 1.3fr 0.7fr; gap: 26px; margin-bottom: 30px;">
+                    <!-- Traffic Trend Bar Chart -->
+                    <div class="g c" style="padding: 30px;">
+                        <div class="f" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <h3 style="font-size: 17px; margin-bottom: 4px;">Click Volume Over Time</h3>
+                                <p class="m" style="font-size: 12px;">Hourly click distribution across global nodes</p>
+                            </div>
+                            <span class="t" style="background: rgba(34,197,94,0.15); color: #4ade80; border-color: rgba(34,197,94,0.3);">● Live Stream</span>
+                        </div>
+
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 45%;" data-val="1.2k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Mon</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 65%;" data-val="2.1k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Tue</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 85%;" data-val="3.4k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Wed</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 70%;" data-val="2.7k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Thu</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 95%; background: linear-gradient(180deg,#38bdf8,#5eead4);" data-val="4.2k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Fri</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 55%;" data-val="1.8k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Sat</span>
+                            </div>
+                            <div class="chart-bar-col">
+                                <div class="chart-bar-fill" style="height: 40%;" data-val="1.1k"></div>
+                                <span class="m" style="font-size: 11px; margin-top: 8px;">Sun</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Device Breakdown -->
+                    <div class="g c" style="padding: 30px;">
+                        <h3 style="font-size: 17px; margin-bottom: 4px;">Device Breakdown</h3>
+                        <p class="m" style="font-size: 12px; margin-bottom: 22px;">Hardware &amp; client environments</p>
+
+                        <div>
+                            <div class="f" style="justify-content: space-between; font-size: 13px;">
+                                <span>📱 Smartphones (iOS &amp; Android)</span>
+                                <b>68%</b>
+                            </div>
+                            <div class="progress-pill">
+                                <div class="progress-bar-inner" style="width: 68%;"></div>
+                            </div>
+
+                            <div class="f" style="justify-content: space-between; font-size: 13px;">
+                                <span>💻 Desktop &amp; Laptops</span>
+                                <b>26%</b>
+                            </div>
+                            <div class="progress-pill">
+                                <div class="progress-bar-inner" style="width: 26%; background: #38bdf8;"></div>
+                            </div>
+
+                            <div class="f" style="justify-content: space-between; font-size: 13px;">
+                                <span>📟 Tablets &amp; Others</span>
+                                <b>6%</b>
+                            </div>
+                            <div class="progress-pill">
+                                <div class="progress-bar-inner" style="width: 6%; background: #a78bfa;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.04); text-align: center;">
+                            <a href="dashboard.html" class="b" style="padding: 10px 18px; font-size: 13px; width: 100%; box-sizing: border-box;">
+                                🚀 Open Live Admin Table
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UTM Campaign Builder Section -->
+                <div class="g c" style="padding: 34px;" id="utm">
+                    <span class="t" style="border-color: rgba(234,88,12,0.4); color: #f97316; margin-bottom: 12px;">🎯 UTM Builder</span>
+                    <h2 style="text-align: left; font-size: 20px; margin-bottom: 8px;">Campaign Parameter Generator</h2>
+                    <p class="m" style="font-size: 13px; margin-bottom: 24px;">Automatically append Google Analytics UTM tracking parameters to any link.</p>
+
+                    <div class="gr" style="grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display:block; font-size:12px; margin-bottom:6px;" class="m">Campaign Source (utm_source)</label>
+                            <input type="text" id="utmSource" class="i" placeholder="e.g. newsletter, google, twitter" value="newsletter" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:12px; margin-bottom:6px;" class="m">Campaign Medium (utm_medium)</label>
+                            <input type="text" id="utmMedium" class="i" placeholder="e.g. cpc, email, banner" value="email" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:12px; margin-bottom:6px;" class="m">Campaign Name (utm_campaign)</label>
+                            <input type="text" id="utmName" class="i" placeholder="e.g. spring_sale_2026" value="launch_promo" />
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                        <span id="taggedUrlPreview" style="font-family: monospace; font-size: 13px; color: #7cb2ff; word-break: break-all;">
+                            https://example.com/?utm_source=newsletter&amp;utm_medium=email&amp;utm_campaign=launch_promo
+                        </span>
+                        <button type="button" onclick="copyTaggedUrl()" class="n" style="padding: 8px 18px;">
+                            Copy Tagged URL
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast -->
+            <div id="toast" class="toast">✨ Tagged Link Copied!</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function updateUtm() {
+            const s = document.getElementById('utmSource').value.trim() || 'newsletter';
+            const m = document.getElementById('utmMedium').value.trim() || 'email';
+            const c = document.getElementById('utmName').value.trim() || 'promo';
+            const tagged = `https://example.com/?utm_source=${encodeURIComponent(s)}&utm_medium=${encodeURIComponent(m)}&utm_campaign=${encodeURIComponent(c)}`;
+            document.getElementById('taggedUrlPreview').textContent = tagged;
+        }
+
+        function copyTaggedUrl() {
+            const text = document.getElementById('taggedUrlPreview').textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.textContent = '📋 Copied tagged URL!';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+
+        document.getElementById('utmSource').addEventListener('input', updateUtm);
+        document.getElementById('utmMedium').addEventListener('input', updateUtm);
+        document.getElementById('utmName').addEventListener('input', updateUtm);
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Solutions — HEA Link</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sol-grid-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 34px;
+            margin-top: 40px;
+        }
+        .sol-sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .sol-tab-link {
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sol-tab-link:hover, .sol-tab-link.active {
+            background: rgba(234,88,12,0.18);
+            border-color: rgba(234,88,12,0.5);
+            color: #f97316;
+            transform: translateX(4px);
+        }
+        .sol-content-pane {
+            display: none;
+        }
+        .sol-content-pane.active {
+            display: block;
+        }
+        @media (max-width: 900px) {
+            .sol-grid-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="r" style="min-height: 1800px; padding-bottom: 80px;">
+        <!-- Ambient Glowing Orbs -->
+        <div class="o" style="width:520px;height:520px;background:#ea580c;left:-120px;top:-100px"></div>
+        <div class="o" style="width:460px;height:460px;background:#2563eb;right:-100px;top:180px"></div>
+        <div class="o" style="width:480px;height:480px;background:#14b8a6;left:30%;bottom:300px"></div>
+
+        <div class="z">
+            <!-- Global Enterprise Header Navbar with Bitly-style Mega Menu -->
+            <div id="siteNav"></div>
+
+            <!-- Page Hero -->
+            <div class="page-hero">
+                <span class="t" style="border-color: rgba(234,88,12,0.5); color: #f97316; margin-bottom: 12px;">🏢 Tailored Architecture</span>
+                <h1>Solutions Built For Your Industry &amp; Team</h1>
+                <p>From fast-growing direct-to-consumer retailers to Fortune 500 enterprises, see how HEA Link scales customer touchpoints.</p>
+            </div>
+
+            <div class="w">
+                <div class="sol-grid-layout">
+                    <!-- Left Sidebar Switcher -->
+                    <div class="sol-sidebar-nav">
+                        <button class="sol-tab-link active" onclick="showSolutionPane('industry', this)">
+                            <span>🛍️ By Industry</span>
+                            <span>→</span>
+                        </button>
+                        <button class="sol-tab-link" onclick="showSolutionPane('team', this)">
+                            <span>👥 By Team</span>
+                            <span>→</span>
+                        </button>
+                        <button class="sol-tab-link" onclick="showSolutionPane('business', this)">
+                            <span>🏢 By Business Size</span>
+                            <span>→</span>
+                        </button>
+                        <button class="sol-tab-link" onclick="showSolutionPane('cases', this)">
+                            <span>🎯 Use Cases</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                    <!-- Right Solution Panes -->
+                    <div>
+                        <!-- Pane 1: By Industry -->
+                        <div id="pane-industry" class="sol-content-pane active">
+                            <div class="g c" style="padding: 34px; margin-bottom: 24px;">
+                                <span class="t k" style="font-size: 11px; margin-bottom: 10px;">RETAIL &amp; E-COMMERCE</span>
+                                <h2 style="text-align: left; font-size: 24px; margin-bottom: 10px;">Drive Repeat Sales From Product Packaging</h2>
+                                <p class="m" style="font-size: 14px; line-height: 1.7; margin-bottom: 24px;">
+                                    Print dynamic 2D barcodes and short links directly on labels, unboxing inserts, and invoices. Change seasonal coupons on the fly without reprinting.
+                                </p>
+                                <div class="gr" style="grid-template-columns: repeat(3, 1fr); gap: 14px;">
+                                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px;">
+                                        <b style="color: #60a5fa; font-size: 20px;">+42%</b>
+                                        <p class="m" style="font-size: 12px; margin-top: 4px;">Higher Scan-Through Rate</p>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px;">
+                                        <b style="color: #5eead4; font-size: 20px;">100%</b>
+                                        <p class="m" style="font-size: 12px; margin-top: 4px;">Zero Downtime Redirects</p>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 12px;">
+                                        <b style="color: #f97316; font-size: 20px;">3.8x</b>
+                                        <p class="m" style="font-size: 12px; margin-top: 4px;">Repeat Order Lift</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="gr features-grid-4" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 12px;">💻</div>
+                                    <h3>Technology &amp; Software</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 6px;">Programmatic API link generation for SaaS confirmation emails and password resets.</p>
+                                </div>
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 12px;">🏨</div>
+                                    <h3>Hospitality &amp; Travel</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 6px;">Contactless check-in QR codes, room service menus, and guest feedback surveys.</p>
+                                </div>
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 12px;">🏥</div>
+                                    <h3>Healthcare &amp; Pharma</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 6px;">Secure, HIPAA-compliant patient communication links and prescription verification.</p>
+                                </div>
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 12px;">🎓</div>
+                                    <h3>Education &amp; Non-Profit</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 6px;">Campus event posters, alumni fundraising campaigns, and digital course schedules.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pane 2: By Team -->
+                        <div id="pane-team" class="sol-content-pane">
+                            <div class="gr features-grid-4" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 14px; font-size: 20px;">&lt;/&gt;</div>
+                                    <h3>For Developers</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">REST API, Webhooks, Python &amp; Node SDKs, and native Model Context Protocol (MCP) server support.</p>
+                                    <a href="ai.html#developers" class="n" style="margin-top: 16px; font-size: 12px;">View API Docs →</a>
+                                </div>
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 14px; font-size: 20px;">📣</div>
+                                    <h3>For Marketing</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Custom branded subdomains (go.brand.com), automated UTM tags, and Google Analytics 4 sync.</p>
+                                    <a href="analytics.html" class="n" style="margin-top: 16px; font-size: 12px;">Explore Analytics →</a>
+                                </div>
+                                <div class="g c">
+                                    <div class="menu-icon-box" style="margin-bottom: 14px; font-size: 20px;">🎧</div>
+                                    <h3>For Customer Service</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Send clean, verified short links via SMS and chat tickets to speed up issue resolution.</p>
+                                    <a href="index.html" class="n" style="margin-top: 16px; font-size: 12px;">Create Short Link →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pane 3: By Business Size -->
+                        <div id="pane-business" class="sol-content-pane">
+                            <div class="gr features-grid-4" style="grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                                <div class="g c">
+                                    <span class="t" style="margin-bottom: 12px;">STARTER</span>
+                                    <h3>Small Business</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Simple link shorteners and free branded QR codes to put on stickers and business cards.</p>
+                                    <a href="pricing.html" class="b" style="margin-top: 18px; font-size: 12px; width: 100%; box-sizing: border-box;">Start Free</a>
+                                </div>
+                                <div class="g c">
+                                    <span class="t k" style="margin-bottom: 12px;">POPULAR</span>
+                                    <h3>Midmarket Brands</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Multi-user permissions, branded domains, bulk link shortening, and deep analytics.</p>
+                                    <a href="pricing.html" class="b" style="margin-top: 18px; font-size: 12px; width: 100%; box-sizing: border-box;">View Growth Plan</a>
+                                </div>
+                                <div class="g c">
+                                    <span class="t" style="color: #f97316; border-color: rgba(234,88,12,0.4); margin-bottom: 12px;">ENTERPRISE</span>
+                                    <h3>Global Enterprise</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">99.99% SLA uptime, Single Sign-On (SAML/Okta), HIPAA &amp; SOC2 compliance, and dedicated engineering support.</p>
+                                    <a href="pricing.html" class="n" style="margin-top: 18px; font-size: 12px; width: 100%; box-sizing: border-box;">Contact Sales</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pane 4: Use Cases -->
+                        <div id="pane-cases" class="sol-content-pane">
+                            <div class="gr features-grid-4" style="grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div class="g c">
+                                    <h3>📦 Product Packaging &amp; Unboxing</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Place scannable 2D barcodes on bottles, boxes, and garments to tell your brand story.</p>
+                                </div>
+                                <div class="g c">
+                                    <h3>📰 Print &amp; Outdoor Advertising</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Turn offline billboard and magazine viewers into high-converting digital visitors.</p>
+                                </div>
+                                <div class="g c">
+                                    <h3>📱 SMS &amp; Mobile Messaging</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Save character counts in text campaigns while maintaining brand trust with clean slugs.</p>
+                                </div>
+                                <div class="g c">
+                                    <h3>📋 Surveys &amp; Customer Feedback</h3>
+                                    <p class="m" style="font-size: 13px; line-height: 1.6; margin-top: 8px;">Collect reviews at point-of-sale receipt with 1-second load times.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function showSolutionPane(paneId, btn) {
+            document.querySelectorAll('.sol-tab-link').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.sol-content-pane').forEach(p => p.classList.remove('active'));
+            
+            btn.classList.add('active');
+            const target = document.getElementById('pane-' + paneId);
+            if (target) target.classList.add('active');
+        }
+
+        // Check URL query param e.g. solutions.html?tab=team
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab) {
+            const btn = document.querySelector(`button[onclick*="'${tab}'"]`);
+            if (btn) showSolutionPane(tab, btn);
+        }
+    </script>
+</body>
+</html>

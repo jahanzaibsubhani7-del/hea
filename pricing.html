@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans &amp; Tiers — HEA Link</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pricing-card-highlight {
+            border: 2px solid #38bdf8 !important;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.35) !important;
+            position: relative;
+        }
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .faq-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .faq-item:hover {
+            background: rgba(255,255,255,0.07);
+        }
+        .faq-answer {
+            display: none;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="r" style="min-height: 1800px; padding-bottom: 80px;">
+        <!-- Ambient Glowing Orbs -->
+        <div class="o" style="width:520px;height:520px;background:#2563eb;left:-120px;top:-100px"></div>
+        <div class="o" style="width:460px;height:460px;background:#7c3aed;right:-100px;top:180px"></div>
+        <div class="o" style="width:480px;height:480px;background:#5eead4;left:30%;bottom:300px"></div>
+
+        <div class="z">
+            <!-- Global Enterprise Header Navbar with Bitly-style Mega Menu -->
+            <div id="siteNav"></div>
+
+            <!-- Page Hero -->
+            <div class="page-hero">
+                <span class="t" style="border-color: rgba(94,234,212,0.5); color: #5eead4; margin-bottom: 12px;">💳 Simple &amp; Transparent</span>
+                <h1>Find The Perfect Plan For Your Scale</h1>
+                <p>Start free today and upgrade as you grow. All paid plans include custom domains and high-speed edge redirects.</p>
+
+                <!-- Billing Cycle Switcher -->
+                <div class="f" style="justify-content: center; align-items: center; gap: 14px; margin-top: 30px;">
+                    <span id="labelMonthly" style="font-size: 13px; font-weight: 600; color: #fff;">Monthly</span>
+                    <button type="button" id="billingToggle" onclick="toggleBilling()" style="width: 52px; height: 28px; border-radius: 99px; background: #2563eb; border: none; cursor: pointer; position: relative; padding: 2px;">
+                        <span id="toggleKnob" style="width: 24px; height: 24px; border-radius: 50%; background: #fff; display: block; transition: transform 0.2s ease;"></span>
+                    </button>
+                    <span id="labelAnnual" style="font-size: 13px; color: #a9b6d6;">Annual <span class="t k" style="font-size: 10px; margin-left: 4px;">Save 20%</span></span>
+                </div>
+            </div>
+
+            <div class="w">
+                <!-- 3 Pricing Columns -->
+                <div class="gr pricing-grid-3" style="grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px;">
+                    <!-- Tier 1: Free -->
+                    <div class="g c" style="padding: 34px;">
+                        <span class="t" style="margin-bottom: 16px;">FREE FOREVER</span>
+                        <h3 style="font-size: 20px;">Starter</h3>
+                        <p class="m" style="font-size: 13px; margin: 8px 0 24px;">For individuals and hobby projects.</p>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <span style="font-size: 42px; font-weight: 700;">$0</span>
+                            <span class="m" style="font-size: 14px;">/ month</span>
+                        </div>
+
+                        <a href="index.html" class="n" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px; margin-bottom: 26px;">
+                            Get Started Free
+                        </a>
+
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2; color: #cbd5e1;">
+                            <li>✓ Unlimited short links</li>
+                            <li>✓ Standard QR Code generator</li>
+                            <li>✓ 3 Active Link-in-Bio pages</li>
+                            <li>✓ 30-day click analytics history</li>
+                            <li style="color: #64748b;">✗ Custom branded domains</li>
+                            <li style="color: #64748b;">✗ Model Context Protocol (MCP)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tier 2: Growth (Highlighted) -->
+                    <div class="g c pricing-card-highlight" style="padding: 34px;">
+                        <div class="popular-badge">MOST POPULAR</div>
+                        <span class="t k" style="margin-bottom: 16px;">GROWTH ACCELERATOR</span>
+                        <h3 style="font-size: 20px;">Growth</h3>
+                        <p class="m" style="font-size: 13px; margin: 8px 0 24px;">For startups, creators and growing teams.</p>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <span id="priceGrowth" style="font-size: 42px; font-weight: 700; color: #60a5fa;">$29</span>
+                            <span class="m" style="font-size: 14px;" id="periodGrowth">/ month</span>
+                        </div>
+
+                        <a href="login.html" class="b" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px; margin-bottom: 26px;">
+                            Start 14-Day Free Trial
+                        </a>
+
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2; color: #cbd5e1;">
+                            <li>✓ <b>5 Custom Branded Domains</b> (link.brand.com)</li>
+                            <li>✓ Dynamic editable QR codes (vector SVG &amp; PNG)</li>
+                            <li>✓ Unlimited Link-in-Bio pages &amp; custom themes</li>
+                            <li>✓ Full UTM Campaign Builder</li>
+                            <li>✓ 1-Year historical click intelligence</li>
+                            <li>✓ Full HEA Assist AI slug generator</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tier 3: Enterprise -->
+                    <div class="g c" style="padding: 34px;">
+                        <span class="t" style="border-color: rgba(234,88,12,0.4); color: #f97316; margin-bottom: 16px;">ENTERPRISE GRADE</span>
+                        <h3 style="font-size: 20px;">Enterprise</h3>
+                        <p class="m" style="font-size: 13px; margin: 8px 0 24px;">For high-volume corporations and platforms.</p>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <span id="priceEnterprise" style="font-size: 42px; font-weight: 700;">$199</span>
+                            <span class="m" style="font-size: 14px;" id="periodEnterprise">/ month</span>
+                        </div>
+
+                        <a href="login.html" class="n" style="width: 100%; box-sizing: border-box; justify-content: center; padding: 12px; margin-bottom: 26px;">
+                            Talk to Enterprise Sales
+                        </a>
+
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 2; color: #cbd5e1;">
+                            <li>✓ Unlimited Custom Domains</li>
+                            <li>✓ 99.99% Uptime SLA Guarantee</li>
+                            <li>✓ Native MCP Server AI Agent access</li>
+                            <li>✓ Okta / SAML Single Sign-On (SSO)</li>
+                            <li>✓ Dedicated Account Executive &amp; 24/7 Phone</li>
+                            <li>✓ Custom Data Retention &amp; SOC2 Reports</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div style="margin-top: 80px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <h2 style="margin-bottom: 30px;">Frequently Asked Questions</h2>
+
+                    <div class="faq-item open" onclick="this.classList.toggle('open')">
+                        <div class="f" style="justify-content: space-between; align-items: center; font-weight: 600;">
+                            <span>Can I use my own custom domain name?</span>
+                            <span>▾</span>
+                        </div>
+                        <div class="faq-answer">
+                            Yes! On the Growth and Enterprise plans, you can connect your own custom domain (e.g. <code>links.yourbrand.com</code>) with automatic free SSL certification.
+                        </div>
+                    </div>
+
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="f" style="justify-content: space-between; align-items: center; font-weight: 600;">
+                            <span>What happens if I change the destination of a QR code?</span>
+                            <span>▾</span>
+                        </div>
+                        <div class="faq-answer">
+                            With our Dynamic QR codes, the printed barcode image stays the exact same forever. You can log into your dashboard anytime and change where it redirects without reprinting!
+                        </div>
+                    </div>
+
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="f" style="justify-content: space-between; align-items: center; font-weight: 600;">
+                            <span>How does HEA Link compare to Bitly?</span>
+                            <span>▾</span>
+                        </div>
+                        <div class="faq-answer">
+                            HEA Link offers a complete all-in-one suite (Short Links, Custom QR codes, Link-in-Bio mobile pages, and AI Model Context Protocol integrations) with zero ads and higher free tier limits.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let isAnnual = false;
+        function toggleBilling() {
+            isAnnual = !isAnnual;
+            const knob = document.getElementById('toggleKnob');
+            const lMonth = document.getElementById('labelMonthly');
+            const lAnn = document.getElementById('labelAnnual');
+            const priceGrowth = document.getElementById('priceGrowth');
+            const priceEnterprise = document.getElementById('priceEnterprise');
+
+            if (isAnnual) {
+                knob.style.transform = 'translateX(24px)';
+                lMonth.style.color = '#a9b6d6';
+                lAnn.style.color = '#fff';
+                priceGrowth.textContent = '$23';
+                priceEnterprise.textContent = '$159';
+            } else {
+                knob.style.transform = 'translateX(0)';
+                lMonth.style.color = '#fff';
+                lAnn.style.color = '#a9b6d6';
+                priceGrowth.textContent = '$29';
+                priceEnterprise.textContent = '$199';
+            }
+        }
+    </script>
+</body>
+</html>
