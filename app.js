@@ -1144,7 +1144,7 @@ function goPage(hashFragment) {
     <span class="pill" style="margin-bottom:12px">Safe Redirect Gateway</span>
     <h2>Redirecting to Destination…</h2>
     <p class="muted">You are safely being redirected to:</p>
-    <div style="background:#f1eee4;padding:14px 18px;border-radius:12px;margin:18px 0;word-break:break-all;font-weight:600;color:var(--blue);border:1px solid var(--line)">
+    <div style="background:rgba(255,255,255,0.08);padding:14px 18px;border-radius:12px;margin:18px 0;word-break:break-all;font-weight:600;color:var(--blue);border:1px solid var(--line)">
       ${esc(destUrl)}
     </div>
     <p class="small">Redirecting automatically in <span id="cdNum">2</span> seconds…</p>
